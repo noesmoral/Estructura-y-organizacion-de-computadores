@@ -1,0 +1,2 @@
+Practicas Estructura y organizacion de computades UAH GIC 14/15
+En este repositorio se encuentran las practicas de la asignatura del año 14/15 las practicas estan realizadas sobre masm51 el cual no se incluye en este caso tampoco se adjunta memoria de las mismas pero si que se adjunta informacion sobre el programa y el lenguaje.

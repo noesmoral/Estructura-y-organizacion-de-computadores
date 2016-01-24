@@ -1,0 +1,78 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/16/14 11:59:3
+                                                             Page     1-1
+
+
+				dosseg
+				.model small
+				.stack 100h
+				.data
+ 0000  01 02 03 04 05 06	numeros DB 1,2,3,4,5,6;
+				
+				.CODE
+ 0000				Inicio:
+ 0000  B8 ---- R		mov ax, @DATA
+ 0003  8E D8			mov ds, ax
+				
+ 0005  8D 1E 0000 R		lea bx, numeros
+				
+ 0009  B9 0006			mov cx, 6
+				
+ 000C				Bucle:
+ 000C  8A 17				mov dl,[bx]
+ 000E  80 C2 04				add dl, 4
+ 0011  88 17				mov [bx], dl
+ 0013  43				inc bx
+ 0014  E2 F6			LOOP Bucle
+				
+ 0016  B9 0006			mov cx, 6
+				
+ 0019				Bucle1:
+ 0019  8A 17				mov dl,[bx]
+ 001B  80 C2 04				add dl, 4
+ 001E  88 17				mov [bx], dl
+ 0020  43				inc bx
+ 0021  E2 F6			LOOP Bucle1
+				
+ 0023  B4 4C				mov ah, 4ch
+ 0025  CD 21				int 21h
+				END Inicio
+Microsoft (R) Macro Assembler Version 5.10                  12/16/14 11:59:3
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0006	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0100	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	0027	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+BUCLE  . . . . . . . . . . . . .  	L NEAR	000C	_TEXT
+BUCLE1 . . . . . . . . . . . . .  	L NEAR	0019	_TEXT
+
+INICIO . . . . . . . . . . . . .  	L NEAR	0000	_TEXT
+
+NUMEROS  . . . . . . . . . . . .  	L BYTE	0000	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  ejer5		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     34 Source  Lines
+     34 Total   Lines
+     25 Symbols
+
+  47070 + 438814 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors

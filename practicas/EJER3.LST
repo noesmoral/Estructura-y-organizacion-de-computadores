@@ -1,0 +1,403 @@
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Page     1-1
+
+
+				.model small
+				
+				.stack 300h
+				;----------------------------------------------
+				--------
+				.data
+ = 000D				CR equ 0dh
+ = 000A				LF equ 0ah
+ 0000  0D 0A 24			salto db CR,LF,'$'
+ 0003  49 6E 73 65 72 74	mens db 'Inserta numero de 8 bits',CR,LF,'$'
+       61 20 6E 75 6D 65	
+       72 6F 20 64 65 20	
+       38 20 62 69 74 73	
+       0D 0A 24			
+ 001E  00			numero db 0h
+ 001F  00			numero2 db 0h
+ 0020  02			dos db 02h
+ 0021  80			multi db 128d
+				
+ 0022				binarios label byte
+ 0022  09			string db 9
+ 0023  09			max db 9
+ 0024  0009[			cadena db 9 dup(' ')
+	   20			
+			 ]	
+				
+				
+ 002D  FF			uno db -01h
+ 002E  01			c2 db 01h
+				
+ 002F  00			bcd1 db 0
+ 0030  00			bcd2 db 0
+ 0031  00			bcd3 db 0
+ 0032  00			aux db 0
+ 0033  00			nbcd db 0
+				
+ 0034  00			h1 db 0
+ 0035  00			h2 db 0
+ 0036  10			hex db 16d
+				;----------------------------------------------
+				---------
+				.code
+ 0000				inicio:
+				
+ 0000  B8 ---- R		mov ax,@data
+ 0003  8E D8			mov ds,ax
+ 0005  1E			push ds
+ 0006  07			pop es
+				;----------------------------------------------
+				---------
+ 0007  B4 09			mov ah,09h ;rutina que obtiene cadena de 8 bits
+ 0009  8D 16 0003 R		lea dx,mens ;desde teclado
+ 000D  CD 21			int 21h
+				
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Page     1-2
+
+
+ 000F  B4 0A			mov ah,0ah
+ 0011  8D 16 0022 R		lea dx,binarios
+ 0015  CD 21			int 21h
+				
+ 0017  B4 09			mov ah,09h
+ 0019  8D 16 0000 R		lea dx,salto
+ 001D  CD 21			int 21h
+				;----------------------------------------------
+				----------
+ 001F  33 F6			xor si,si
+ 0021  8D 36 0024 R		lea si,cadena
+ 0025  B9 0008			mov cx,0008h
+				;----------------------------------------------
+				----------
+ 0028				conver:
+ 0028  8A 04			mov al,[si] ;convierte cadena a número
+ 002A  34 30			xor al,30h
+ 002C  8A 1E 0021 R		mov bl,multi
+ 0030  F6 E3			mul bl
+ 0032  02 06 001E R		add al,numero
+ 0036  A2 001E R		mov numero,al
+ 0039  A2 001F R		mov numero2,al
+ 003C  A2 0033 R		mov nbcd,al
+ 003F  33 C0			xor ax,ax
+ 0041  A0 0021 R		mov al,multi
+ 0044  F6 36 0020 R		div dos
+ 0048  A2 0021 R		mov multi,al
+ 004B  33 C0			xor ax,ax
+ 004D  46			inc si
+ 004E  E2 D8			loop conver
+ 0050  E8 0194 R		call limpieza
+				;----------------------------------------------
+				----------
+				; COMIENZAN LAS RUTINAS DE CONVERSION
+				;----------------------------------------------
+				----------
+				;call imprimir ; muestra la cadena tal cual se 
+				tecleó
+				;mov ah,09h
+				;lea dx,salto
+				;int 21h
+				;call limpieza
+				;**************************************
+ 0053  A0 001E R		mov al,numero
+ 0056  B3 FF			mov bl,-1
+ 0058  F6 EB			imul bl
+ 005A  A2 001E R		mov numero,al ;rutina a numero negativo
+ 005D  E8 0194 R		call limpieza
+ 0060  E8 016A R		call imprimir
+ 0063  B4 09			mov ah,09h
+ 0065  8D 16 0000 R		lea dx,salto
+ 0069  CD 21			int 21h
+ 006B  E8 0194 R		call limpieza
+				;**************************************
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Page     1-3
+
+
+ 006E  8A 16 001F R		mov dl,numero2
+ 0072  88 16 001E R		mov numero,dl
+ 0076  F6 16 001E R		not numero ;rutina complemento a 1
+ 007A  E8 0194 R		call limpieza
+ 007D  E8 016A R		call imprimir
+ 0080  B4 09			mov ah,09h
+ 0082  8D 16 0000 R		lea dx,salto
+ 0086  CD 21			int 21h
+ 0088  E8 0194 R		call limpieza
+				
+				;**************************************
+ 008B  A0 001F R		mov al,numero2
+ 008E  F6 D0			not al
+ 0090  04 01			add al,01 ;rutina complemento a 2
+ 0092  A2 001E R		mov numero,al
+ 0095  E8 016A R		call imprimir
+ 0098  B4 09			mov ah,09h
+ 009A  8D 16 0000 R		lea dx,salto
+ 009E  CD 21			int 21h
+ 00A0  E8 0194 R		call limpieza
+				
+				;****************************************
+ 00A3  A0 0033 R		mov al,nbcd ;rutina a BCD
+ 00A6  B3 0A			mov bl,10
+ 00A8  F6 F3			div bl
+ 00AA  88 26 002F R		mov bcd1,ah
+ 00AE  A2 0030 R		mov bcd2,al
+ 00B1  E8 0194 R		call limpieza
+ 00B4  A0 0030 R		mov al,bcd2
+ 00B7  B3 0A			mov bl,10
+ 00B9  F6 F3			div bl
+ 00BB  88 26 0030 R		mov bcd2,ah
+ 00BF  A2 0031 R		mov bcd3,al
+ 00C2  E8 0194 R		call limpieza
+				
+ 00C5  8A 1E 0031 R		mov bl,bcd3
+ 00C9  88 1E 0032 R		mov aux,bl
+ 00CD  E8 01A2 R		call print_bcd
+ 00D0  E8 0194 R		call limpieza
+ 00D3  B2 20			mov dl,' '
+ 00D5  E8 019D R		call print
+ 00D8  E8 0194 R		call limpieza
+				
+ 00DB  8A 1E 0030 R		mov bl,bcd2
+ 00DF  88 1E 0032 R		mov aux,bl
+ 00E3  E8 01A2 R		call print_bcd
+ 00E6  E8 0194 R		call limpieza
+ 00E9  B2 20			mov dl,' '
+ 00EB  E8 019D R		call print
+ 00EE  E8 0194 R		call limpieza
+				
+ 00F1  8A 1E 002F R		mov bl,bcd1
+ 00F5  88 1E 0032 R		mov aux,bl
+ 00F9  E8 01A2 R		call print_bcd
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Page     1-4
+
+
+ 00FC  E8 0194 R		call limpieza
+ 00FF  B2 20			mov dl,' '
+ 0101  E8 019D R		call print
+ 0104  E8 0194 R		call limpieza
+ 0107  B4 09			mov ah,09h
+ 0109  8D 16 0000 R		lea dx,salto
+ 010D  CD 21			int 21h
+ 010F  E8 0194 R		call limpieza
+ 0112  90			nop
+ 0113  90			nop
+ 0114  90			nop
+				
+				;**************************************
+ 0115  A0 001F R		mov al,numero2 ;rutina en hexadecimal
+ 0118  F6 36 0036 R		div hex
+ 011C  A2 0034 R		mov h1,al
+ 011F  88 26 0035 R		mov h2,ah
+ 0123  33 C0			xor ax,ax
+				
+ 0125  A0 0034 R		mov al,h1
+ 0128  3C 0A			cmp al,0ah
+ 012A  73 0B			jae @diez
+ 012C  8A D0			mov dl,al
+ 012E  80 CA 30			or dl,30h
+ 0131  E8 019D R		call print
+ 0134  EB 08 90			jmp sigue
+ 0137				@diez:
+ 0137  04 37			add al,55
+ 0139  8A D0			mov dl,al
+ 013B  E8 019D R		call print
+ 013E				sigue:
+ 013E  A0 0035 R		mov al,h2
+ 0141  3C 0A			cmp al,0ah
+ 0143  73 0B			jae @vein
+ 0145  8A D0			mov dl,al
+ 0147  80 CA 30			or dl,30h
+ 014A  E8 019D R		call print
+ 014D  EB 16 90			jmp fin
+ 0150				@vein:
+ 0150  04 37			add al,55
+ 0152  8A D0			mov dl,al
+ 0154  E8 019D R		call print
+ 0157  B4 09			mov ah,09h
+ 0159  8D 16 0000 R		lea dx,salto
+ 015D  CD 21			int 21h
+ 015F  E8 0194 R		call limpieza
+ 0162  90			nop
+ 0163  90			nop
+ 0164  90			nop
+				
+				
+				
+ 0165				fin:
+ 0165  B8 4C00			mov ax,4c00h
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Page     1-5
+
+
+ 0168  CD 21			int 21h
+				
+				;----------------------------------------------
+				----------
+ 016A				imprimir proc near
+ 016A  B9 0008			mov cx,0008h ;ciclo para obtener el numero bina
+				rio
+ 016D  A0 001E R		mov al,numero
+ 0170  8A 1E 0020 R		mov bl,dos
+ 0174				ciclo_bin:
+ 0174  F6 F3			div bl
+ 0176  50			push ax
+ 0177  A2 001E R		mov numero,al
+ 017A  33 C0			xor ax,ax
+ 017C  A0 001E R		mov al,numero
+ 017F  E2 F3			loop ciclo_bin
+				;----------------------------------------------
+				---------
+ 0181  B9 0008			mov cx,0008h ;ciclo para imprimir el número bin
+				ario
+ 0184				ciclo_print:
+ 0184  5A			pop dx
+ 0185  86 F2			xchg dh,dl
+ 0187  81 CA 3030		or dx,3030h
+ 018B  B4 02			mov ah,02h
+ 018D  CD 21			int 21h
+ 018F  33 D2			xor dx,dx
+ 0191  E2 F1			loop ciclo_print
+ 0193  C3			ret
+ 0194				imprimir endp
+				
+				;----------------------------------------------
+				----------
+ 0194				limpieza proc near
+ 0194  33 C0			xor ax,ax ;limpiamos los registros para que no 
+				exista
+ 0196  33 DB			xor bx,bx ;un desbordamiento al hacer las opera
+				ciones
+ 0198  33 D2			xor dx,dx
+ 019A  33 C9			xor cx,cx
+ 019C  C3			ret
+ 019D				limpieza endp
+				;----------------------------------------------
+				----------
+ 019D				print proc near
+ 019D  B4 02			mov ah,02h
+ 019F  CD 21			int 21h
+ 01A1  C3			ret
+ 01A2				print endp
+				;----------------------------------------------
+				----------
+ 01A2				print_bcd proc near
+ 01A2  B9 0008			mov cx,0008h ;ciclo para obtener el numero bcd
+ 01A5  A0 0032 R		mov al,aux
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Page     1-6
+
+
+ 01A8  8A 1E 0020 R		mov bl,dos
+ 01AC				ciclo_bcd:
+ 01AC  F6 F3			div bl
+ 01AE  50			push ax
+ 01AF  A2 0032 R		mov aux,al
+ 01B2  33 C0			xor ax,ax
+ 01B4  A0 0032 R		mov al,aux
+ 01B7  E2 F3			loop ciclo_bcd
+				
+ 01B9  B9 0008			mov cx,0008h ;ciclo para imprimir el número bin
+				ario
+ 01BC				ciclo_print2:
+ 01BC  5A			pop dx
+ 01BD  86 F2			xchg dh,dl
+ 01BF  81 CA 3030		or dx,3030h
+ 01C3  B4 02			mov ah,02h
+ 01C5  CD 21			int 21h
+ 01C7  33 D2			xor dx,dx
+ 01C9  E2 F1			loop ciclo_print2
+ 01CB  C3			ret
+ 01CC				print_bcd endp
+				;-------------------
+				end inicio
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0037	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0300	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	01CC	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+AUX  . . . . . . . . . . . . . .  	L BYTE	0032	_DATA
+
+BCD1 . . . . . . . . . . . . . .  	L BYTE	002F	_DATA
+BCD2 . . . . . . . . . . . . . .  	L BYTE	0030	_DATA
+BCD3 . . . . . . . . . . . . . .  	L BYTE	0031	_DATA
+BINARIOS . . . . . . . . . . . .  	L BYTE	0022	_DATA
+
+C2 . . . . . . . . . . . . . . .  	L BYTE	002E	_DATA
+CADENA . . . . . . . . . . . . .  	L BYTE	0024	_DATA	Length = 0009
+CICLO_BCD  . . . . . . . . . . .  	L NEAR	01AC	_TEXT
+CICLO_BIN  . . . . . . . . . . .  	L NEAR	0174	_TEXT
+CICLO_PRINT  . . . . . . . . . .  	L NEAR	0184	_TEXT
+CICLO_PRINT2 . . . . . . . . . .  	L NEAR	01BC	_TEXT
+CONVER . . . . . . . . . . . . .  	L NEAR	0028	_TEXT
+CR . . . . . . . . . . . . . . .  	NUMBER	000D	
+
+DOS  . . . . . . . . . . . . . .  	L BYTE	0020	_DATA
+
+FIN  . . . . . . . . . . . . . .  	L NEAR	0165	_TEXT
+
+H1 . . . . . . . . . . . . . . .  	L BYTE	0034	_DATA
+H2 . . . . . . . . . . . . . . .  	L BYTE	0035	_DATA
+HEX  . . . . . . . . . . . . . .  	L BYTE	0036	_DATA
+
+IMPRIMIR . . . . . . . . . . . .  	N PROC	016A	_TEXT	Length = 002A
+INICIO . . . . . . . . . . . . .  	L NEAR	0000	_TEXT
+
+LF . . . . . . . . . . . . . . .  	NUMBER	000A	
+LIMPIEZA . . . . . . . . . . . .  	N PROC	0194	_TEXT	Length = 0009
+
+MAX  . . . . . . . . . . . . . .  	L BYTE	0023	_DATA
+MENS . . . . . . . . . . . . . .  	L BYTE	0003	_DATA
+MULTI  . . . . . . . . . . . . .  	L BYTE	0021	_DATA
+
+NBCD . . . . . . . . . . . . . .  	L BYTE	0033	_DATA
+NUMERO . . . . . . . . . . . . .  	L BYTE	001E	_DATA
+NUMERO2  . . . . . . . . . . . .  	L BYTE	001F	_DATA
+
+PRINT  . . . . . . . . . . . . .  	N PROC	019D	_TEXT	Length = 0005
+PRINT_BCD  . . . . . . . . . . .  	N PROC	01A2	_TEXT	Length = 002A
+Microsoft (R) Macro Assembler Version 5.10                  10/6/14 00:32:54
+                                                             Symbols-2
+
+
+
+SALTO  . . . . . . . . . . . . .  	L BYTE	0000	_DATA
+SIGUE  . . . . . . . . . . . . .  	L NEAR	013E	_TEXT
+STRING . . . . . . . . . . . . .  	L BYTE	0022	_DATA
+
+UNO  . . . . . . . . . . . . . .  	L BYTE	002D	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@DIEZ  . . . . . . . . . . . . .  	L NEAR	0137	_TEXT
+@FILENAME  . . . . . . . . . . .  	TEXT  EJER3		
+@VEIN  . . . . . . . . . . . . .  	L NEAR	0150	_TEXT
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+    268 Source  Lines
+    268 Total   Lines
+     57 Symbols
+
+  47066 + 430626 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors

@@ -1,0 +1,204 @@
+Microsoft (R) Macro Assembler Version 5.10                  11/10/14 10:41:4
+                                                             Page     1-1
+
+
+				dosseg
+				.model small
+				.stack 100h
+				.data
+ 0000  54 68 69 73 20 70		Texto0 DB "This program compares two st
+				rings and display the number of different chara
+				cters only",13,10,'$'
+       72 6F 67 72 61 6D	
+       20 63 6F 6D 70 61	
+       72 65 73 20 74 77	
+       6F 20 73 74 72 69	
+       6E 67 73 20 61 6E	
+       64 20 64 69 73 70	
+       6C 61 79 20 74 68	
+       65 20 6E 75 6D 62	
+       65 72 20 6F 66 20	
+       64 69 66 66 65 72	
+       65 6E 74 20 63 68	
+       61 72 61 63 74 65	
+       72 73 20 6F 6E 6C	
+       79 0D 0A 24		
+ 0058  57 72 69 74 65 20		Texto1 DB "Write the first string of ch
+				aracters (max 120) to compared",13,10,'$'
+       74 68 65 20 66 69	
+       72 73 74 20 73 74	
+       72 69 6E 67 20 6F	
+       66 20 63 68 61 72	
+       61 63 74 65 72 73	
+       20 28 6D 61 78 20	
+       31 32 30 29 20 74	
+       6F 20 63 6F 6D 70	
+       61 72 65 64 0D 0A	
+       24			
+ 0095  57 72 69 74 65 20		Texto2 DB "Write the second string of c
+				haracters (max 120) to compared",13,10,'$'
+       74 68 65 20 73 65	
+       63 6F 6E 64 20 73	
+       74 72 69 6E 67 20	
+       6F 66 20 63 68 61	
+       72 61 63 74 65 72	
+       73 20 28 6D 61 78	
+       20 31 32 30 29 20	
+       74 6F 20 63 6F 6D	
+       70 61 72 65 64 0D	
+       0A 24			
+ 00D3  79 00				Cadena1 DB 121,?,121 DUP(?)
+       0079[			
+	   ??			
+			 ]	
+				
+ 014E  79 00				Cadena2 DB 121,?,121 DUP(?)
+       0079[			
+	   ??			
+			 ]	
+Microsoft (R) Macro Assembler Version 5.10                  11/10/14 10:41:4
+                                                             Page     1-2
+
+
+				
+ 01C9  0000				Resul DW 0
+				
+				.code
+				
+				
+ 0000				print PROC FAR
+ 0000  B4 09				mov ah, 9h
+ 0002  CD 21				int 21h
+ 0004  CB				ret
+ 0005				print ENDP
+				
+				
+ 0005				compare PROC FAR
+ 0005  3A C3				cmp al,bl	
+ 0007  74 08				je exit
+ 0009  EB 01 90				jmp increment
+				
+ 000C				increment:
+ 000C  FF 06 01C9 R			inc Resul
+ 0010  CB				ret
+ 0011				exit:
+ 0011  CB				ret
+ 0012				compare ENDP
+				
+				
+ 0012				cadmax PROC FAR
+ 0012  8A 84 00D4 R			mov al, Cadena1[SI+1]
+ 0016  8A 9C 014F R			mov bl, Cadena2[SI+1]
+ 001A  3A C3				cmp al, bl
+ 001C  77 03				ja more
+ 001E  EB 06 90				jmp diferent
+ 0021				more:
+ 0021  8A 8C 00D4 R			mov cl, Cadena1[SI+1]
+ 0025  CB				ret
+				
+ 0026				diferent:
+ 0026  8A 8C 014F R			mov cl, Cadena2[SI+1]
+ 002A  CB				ret
+ 002B				cadmax ENDP
+				
+				
+ 002B				Inicio:
+ 002B  B8 ---- R			mov ax, @data
+ 002E  8E D8				mov ds, ax
+				
+ 0030  8D 16 0000 R			lea dx, Texto0
+ 0034  9A 0000 ---- R			call print
+				
+ 0039  8D 16 0058 R			lea dx, Texto1
+ 003D  9A 0000 ---- R			call print
+				
+ 0042  B4 0A				mov ah, 0Ah
+ 0044  8D 16 00D3 R			lea dx, Cadena1
+Microsoft (R) Macro Assembler Version 5.10                  11/10/14 10:41:4
+                                                             Page     1-3
+
+
+ 0048  CD 21				int 21h
+				
+ 004A  8D 16 0095 R			lea dx, Texto2
+ 004E  9A 0000 ---- R			call print
+				
+ 0053  B4 0A				mov ah, 0Ah
+ 0055  8D 16 014E R			lea dx, Cadena2
+ 0059  CD 21				int 21h
+					
+ 005B  33 F6				xor SI, SI
+ 005D  9A 0012 ---- R			call cadmax  ;Comprobacion cadena mas g
+				rande
+ 0062					bucle:
+ 0062  8A 84 00D5 R				mov al, Cadena1[SI+2]
+ 0066  8A 9C 0150 R				mov bl, Cadena2[SI+2]	
+ 006A  9A 0005 ---- R				call compare
+ 006F  46					inc SI
+ 0070  E2 F0				loop bucle
+				
+ 0072  B4 4C				mov ah, 4Ch
+ 0074  CD 21				int 21h
+				
+				END Inicio
+Microsoft (R) Macro Assembler Version 5.10                  11/10/14 10:41:4
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	01CB	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0100	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	0076	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+BUCLE  . . . . . . . . . . . . .  	L NEAR	0062	_TEXT
+
+CADENA1  . . . . . . . . . . . .  	L BYTE	00D3	_DATA
+CADENA2  . . . . . . . . . . . .  	L BYTE	014E	_DATA
+CADMAX . . . . . . . . . . . . .  	F PROC	0012	_TEXT	Length = 0019
+COMPARE  . . . . . . . . . . . .  	F PROC	0005	_TEXT	Length = 000D
+
+DIFERENT . . . . . . . . . . . .  	L NEAR	0026	_TEXT
+
+EXIT . . . . . . . . . . . . . .  	L NEAR	0011	_TEXT
+
+INCREMENT  . . . . . . . . . . .  	L NEAR	000C	_TEXT
+INICIO . . . . . . . . . . . . .  	L NEAR	002B	_TEXT
+
+MORE . . . . . . . . . . . . . .  	L NEAR	0021	_TEXT
+
+PRINT  . . . . . . . . . . . . .  	F PROC	0000	_TEXT	Length = 0005
+
+RESUL  . . . . . . . . . . . . .  	L WORD	01C9	_DATA
+
+TEXTO0 . . . . . . . . . . . . .  	L BYTE	0000	_DATA
+TEXTO1 . . . . . . . . . . . . .  	L BYTE	0058	_DATA
+TEXTO2 . . . . . . . . . . . . .  	L BYTE	0095	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  P3		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+Microsoft (R) Macro Assembler Version 5.10                  11/10/14 10:41:4
+                                                             Symbols-2
+
+
+
+     84 Source  Lines
+     84 Total   Lines
+     36 Symbols
+
+  46930 + 436907 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors

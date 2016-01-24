@@ -1,0 +1,89 @@
+Microsoft (R) Macro Assembler Version 5.10                  9/22/14 11:19:19
+                                                             Page     1-1
+
+
+				Dosseg
+				.model small
+				.stack 100h
+				.data
+ 0000  10			Operando1 DB 10h
+ 0001  20			Operando2 DB 20h
+ 0002  0000			ResSuma DW 0000h
+ 0004  0000			ResResta DW 0000h
+ 0006  0000			ResMul DW 0000h
+ 0008  0000			ResDiv DW 0000h
+				
+				.code
+ 0000				Inicio:
+ 0000  B8 ---- R		mov ax, @data
+ 0003  8E D8			mov ds, ax
+ 0005  2B C0			sub ax, ax
+ 0007  A0 0000 R		mov al, Operando1
+ 000A  02 06 0001 R		add al, Operando2
+ 000E  A3 0002 R		mov ResSuma, ax
+				
+ 0011  2B C0			sub ax, ax
+ 0013  A0 0001 R		mov al, Operando2
+ 0016  2A 06 0000 R		sub al, Operando1
+ 001A  A3 0004 R		mov ResResta, ax
+				
+ 001D  2B C0			sub ax, ax
+ 001F  2B DB			sub bx, bx
+ 0021  A0 0000 R		mov al, Operando1
+ 0024  8A 1E 0001 R		mov bl, Operando2
+ 0028  F6 E3			mul bl
+ 002A  A3 0006 R		mov ResMul, ax
+				
+ 002D  2B C0			sub ax, ax
+ 002F  2B DB			sub bx, bx
+ 0031  A0 0001 R		mov al, Operando2
+ 0034  8A 1E 0000 R		mov bl, Operando1
+ 0038  F6 F3			div bl
+ 003A  A3 0008 R		mov ResDiv, ax
+				
+ 003D  B4 4C			mov ah, 4Ch
+ 003F  CD 21			int 21h
+				end Inicio
+Microsoft (R) Macro Assembler Version 5.10                  9/22/14 11:19:19
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	000A	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0100	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	0041	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+INICIO . . . . . . . . . . . . .  	L NEAR	0000	_TEXT
+
+OPERANDO1  . . . . . . . . . . .  	L BYTE	0000	_DATA
+OPERANDO2  . . . . . . . . . . .  	L BYTE	0001	_DATA
+
+RESDIV . . . . . . . . . . . . .  	L WORD	0008	_DATA
+RESMUL . . . . . . . . . . . . .  	L WORD	0006	_DATA
+RESRESTA . . . . . . . . . . . .  	L WORD	0004	_DATA
+RESSUMA  . . . . . . . . . . . .  	L WORD	0002	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  ejer1		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     42 Source  Lines
+     42 Total   Lines
+     28 Symbols
+
+  47146 + 438738 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors

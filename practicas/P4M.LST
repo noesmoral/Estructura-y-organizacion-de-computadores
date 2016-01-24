@@ -1,0 +1,413 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Page     1-1
+
+
+				DOSSEG
+				.MODEL SMALL
+				.STACK 100h
+				.DATA
+ 0000  41 4E 54 4F 4E 49		Usuarios DB "ANTONIO GOMEZ GOMEZ%A23$"
+       4F 20 47 4F 4D 45	
+       5A 20 47 4F 4D 45	
+       5A 25 41 32 33 24	
+ 0018  4C 55 49 53 41 20	 		DB "LUISA ALONSO LOPEZ%A1SA3$"
+       41 4C 4F 4E 53 4F	
+       20 4C 4F 50 45 5A	
+       25 41 31 53 41 33	
+       24			
+ 0031  46 45 52 4E 41 4E	 		DB "FERNANDO PEREZ MINGUEZ%2W45
+				$"
+       44 4F 20 50 45 52	
+       45 5A 20 4D 49 4E	
+       47 55 45 5A 25 32	
+       57 34 35 24		
+ 004D  4A 4F 53 45 46 41	 		DB "JOSEFA RUIZ SANCHEZ%ASQ12$"
+       20 52 55 49 5A 20	
+       53 41 4E 43 48 45	
+       5A 25 41 53 51 31	
+       32 24			
+ 0067  4D 49 47 55 45 4C	 		DB "MIGUEL GARCIA GARCIA%S1A$"
+       20 47 41 52 43 49	
+       41 20 47 41 52 43	
+       49 41 25 53 31 41	
+       24			
+ = 0080				 	LonUsua EQU $-Usuarios
+ 0080  0005[			 	LonParc DB 5 DUP() 	;Permite indexa
+				r la tabla de
+	   00			
+			 ]	
+				
+				 				;usuarios guard
+				ando la longitud
+				 				;de cada entrad
+				a
+ 0085  4E 6F 6D 62 72 65	 	Mensaje1 DB "Nombre de usuari@: $"
+       20 64 65 20 75 73	
+       75 61 72 69 40 3A	
+       20 24			
+ 0099  50 6F 72 20 66 61	 	Mensaje2 DB "Por favor, introduzca su c
+				lave de acceso: $"
+       76 6F 72 2C 20 69	
+       6E 74 72 6F 64 75	
+       7A 63 61 20 73 75	
+       20 63 6C 61 76 65	
+       20 64 65 20 61 63	
+       63 65 73 6F 3A 20	
+       24			
+ 00C4  42 69 65 6E 76 65		Mensaje3 DB "Bienvenid@ al sistema.$"
+       6E 69 64 40 20 61	
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Page     1-2
+
+
+       6C 20 73 69 73 74	
+       65 6D 61 2E 24		
+ 00DB  4E 6F 6D 62 72 65	 	Mensaje4 DB "Nombre de usuari@ o palabr
+				a clave incorrectos.$"
+       20 64 65 20 75 73	
+       75 61 72 69 40 20	
+       6F 20 70 61 6C 61	
+       62 72 61 20 63 6C	
+       61 76 65 20 69 6E	
+       63 6F 72 72 65 63	
+       74 6F 73 2E 24		
+ 010A  48 61 20 73 6F 62	 	Mensaje5 DB "Ha sobrepasado el numero d
+				e intentos de entrada."
+       72 65 70 61 73 61	
+       64 6F 20 65 6C 20	
+       6E 75 6D 65 72 6F	
+       20 64 65 20 69 6E	
+       74 65 6E 74 6F 73	
+       20 64 65 20 65 6E	
+       74 72 61 64 61 2E	
+ 013A  45 6C 20 73 69 73	 		 DB "El sistema se bloquea.",10
+				,13,"$"
+       74 65 6D 61 20 73	
+       65 20 62 6C 6F 71	
+       75 65 61 2E 0A 0D	
+       24			
+ 0153  1F			 	BufUsu 	 DB 31 		;Buffer para gu
+				ardar el usuario
+ 0154  00			 	LonUsu   DB 0
+ 0155  001F[				Usuari 	 DB 31 DUP (?)
+	   ??			
+			 ]	
+				
+ 0174  0000			 	LonCla 	 DW 0 		;Buffer to stor
+				e password
+ 0176  0005[			 	Clave 	 DB 5 DUP (?)
+	   ??			
+			 ]	
+				
+ 017B  00			 	NumInt 	 DB 0 		;Number of fail
+				ed atempts
+ 017C  0000				Fila	 Dw 0
+ 017E  0000				Columna	 Dw 0
+				.CODE
+				;Macro to change video mode
+				ModoVideo MACRO modo
+				 	mov ah,0
+				 	mov al,modo
+				 	int 10h
+				 	ENDM
+				
+				
+				;Procedure to change cursor position
+ 0000				PonCursor PROC
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Page     1-3
+
+
+ 0000  55				PUSH BP		
+ 0001  50				PUSH ax
+ 0002  8A 56 04				mov dl,[BP+4] 
+ 0005  8A 76 06				mov dh,[BP+4+2]
+ 0008  B4 02			 	mov ah,2
+ 000A  33 DB			 	xor bx,bx
+ 000C  CD 10			 	int 10h
+ 000E  58				POP ax
+ 000F  5D				POP BP
+ 0010  C2 0004				RET 4
+ 0013				PonCursor ENDP
+				
+				
+				;Procedure to display a string on the screen
+				SacaMens MACRO Mens
+				 	mov ah,9
+				 	mov dx,Mens
+					int 21h
+					ENDM
+				
+				
+ 0013				Inicio: 
+ 0013  B8 ---- R			mov ax,@DATA
+ 0016  8E D8			 	mov ds,ax
+				
+				;Ask for username and password
+ 0018				otrave: ModoVideo 3
+ 0018  B4 00                 1	 	mov ah,0 
+ 001A  B0 03                 1	 	mov al,3 
+ 001C  CD 10                 1	 	int 10h 
+ 001E  C7 06 017C R 000A		mov Fila, 10
+ 0024  C7 06 017E R 000F		mov Columna, 15
+ 002A  A1 017C R			mov ax, Fila
+ 002D  50				PUSH ax
+ 002E  A1 017E R			mov ax, Columna
+ 0031  50				PUSH ax
+ 0032  E8 0000 R		 	call PonCursor
+					SacaMens Mensaje1
+ 0035  B4 09                 1	 	mov ah,9 
+ 0037  8B 16 0085 R          1	 	mov dx,Mensaje1 
+P4M.asm(73): warning A4031: Operand types must match
+ 003B  CD 21                 1		int 21h 
+ 003D  8D 16 0153 R		 	lea dx, BufUsu
+ 0041  B4 0A			 	mov ah,0Ah
+ 0043  CD 21			 	int 21h
+ 0045  C7 06 017C R 000C		mov Fila, 12
+ 004B  C7 06 017E R 000F		mov Columna, 15
+ 0051  A1 017C R			mov ax, Fila
+ 0054  50				PUSH ax
+ 0055  A1 017E R			mov ax, Columna
+ 0058  50				PUSH ax
+ 0059  E8 0000 R		 	call PonCursor
+					SacaMens Mensaje2
+ 005C  B4 09                 1	 	mov ah,9 
+ 005E  8B 16 0099 R          1	 	mov dx,Mensaje2 
+P4M.asm(84): warning A4031: Operand types must match
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Page     1-4
+
+
+ 0062  CD 21                 1		int 21h 
+ 0064  8D 1E 0176 R		 	lea bx, Clave ;reading password
+ 0068  33 F6			 	xor si,si
+				
+ 006A  B4 08			lazo1:mov ah,8
+ 006C  CD 21				int 21h
+ 006E  88 00				mov [bx+si],al
+ 0070  3C 0D				cmp al,13
+ 0072  74 0C				je salir
+ 0074  B4 0E				mov ah,0Eh
+ 0076  B0 2A				mov al,'*'
+ 0078  CD 10				int 10h
+ 007A  46				inc si
+ 007B  83 FE 05				cmp si,5
+ 007E  76 EA				jbe lazo1
+				
+ 0080  89 36 0174 R		salir: mov LonCla,si ;password length stored ;I
+				ndexar tabla de usuarios
+ 0084  33 F6				xor si,si
+ 0086  33 FF				xor di,di
+ 0088  B2 01				mov dl,1 ;each user type is taken into 
+				account to calculate length
+ 008A  8D 1E 0000 R			lea bx,Usuarios
+ 008E  B9 0080				mov cx,LonUsua
+ 0091  B0 24				mov al,'$'
+				
+ 0093  3A 00			lazo2: cmp al,[bx+si]
+ 0095  75 07				jne seguir
+ 0097  88 95 0080 R			mov LonParc[di],dl
+ 009B  32 D2				xor dl,dl
+ 009D  47				inc di
+				
+ 009E  46			seguir: inc si
+ 009F  FE C2				inc dl
+ 00A1  E2 F0			 	loop lazo2 ;Check username with allowed
+				 stored names
+ 00A3  8D 1E 0000 R			lea bx, Usuarios
+ 00A7  33 FF				xor di,di
+ 00A9  33 F6				xor si,si
+ 00AB  33 C9				xor cx,cx
+ 00AD  8A 0E 0080 R			mov cl,LonParc ;First entry length
+				
+ 00B1  33 F6			otrous: xor si,si
+				
+ 00B3  8A 84 0155 R		lazo3: mov al,Usuari[si]
+ 00B7  3C 20				cmp al,20h ;If space conversion is not 
+				required
+ 00B9  74 02				je saltar
+ 00BB  24 DF				and al,11011111b ;Username uppercase co
+				nversion
+				
+ 00BD  3A 00			saltar: cmp al,[bx+si]
+ 00BF  75 03				jne salfin
+ 00C1  46				inc si
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Page     1-5
+
+
+ 00C2  E2 EF				loop lazo3
+				
+ 00C4  80 38 25			salfin: cmp BYTE PTR[bx+si],'%'
+ 00C7  74 10				je nomcorr
+ 00C9  8A 8D 0080 R			mov cl,LonParc[di]
+ 00CD  03 D9				add bx,cx
+ 00CF  47				inc di
+ 00D0  81 FB 0080			cmp bx,LonUsua ;Ends
+ 00D4  72 DB				jb otrous
+ 00D6  EB 42 90				jmp nominc ;Correct name, then password
+				 chacking
+				
+ 00D9				nomcorr:
+ 00D9  33 C9				xor cx,cx
+ 00DB  8A 8D 0080 R			mov cl,LonParc[di] ;Password length
+ 00DF  2B CE				sub cx,si ;(LonParc[di]-si)-2
+ 00E1  49				dec cx
+ 00E2  49				dec cx
+ 00E3  3B 0E 0174 R			cmp cx,LonCla ;password too long
+ 00E7  72 31				jb nominc ;despite of first character m
+				atching
+ 00E9  46				inc si
+ 00EA  33 FF				xor di,di
+				
+ 00EC  8A 85 0176 R		lazo4: mov al,Clave[di]
+ 00F0  3A 00				cmp al,[bx+si]
+ 00F2  75 26				jne nominc
+ 00F4  46				inc si
+ 00F5  47				inc di
+ 00F6  E2 F4				loop lazo4 ;Display welcome message
+ 00F8  C7 06 017C R 000E		mov Fila, 14
+ 00FE  C7 06 017E R 000F		mov Columna, 15
+ 0104  A1 017C R			mov ax, Fila
+ 0107  50				PUSH ax
+ 0108  A1 017E R			mov ax, Columna
+ 010B  50				PUSH ax
+ 010C  E8 0000 R			call PonCursor
+					SacaMens Mensaje3
+ 010F  B4 09                 1	 	mov ah,9 
+ 0111  8B 16 00C4 R          1	 	mov dx,Mensaje3 
+P4M.asm(168): warning A4031: Operand types must match
+ 0115  CD 21                 1		int 21h 
+ 0117  EB 50 90				jmp final ;Display Username or password
+				 incorrect. Block access
+				
+ 011A				nominc: 
+ 011A  C7 06 017C R 000E		mov Fila, 14
+ 0120  C7 06 017E R 000F		mov Columna, 15
+ 0126  A1 017C R			mov ax, Fila
+ 0129  50				PUSH ax
+ 012A  A1 017E R			mov ax, Columna
+ 012D  50				PUSH ax
+ 012E  E8 0000 R			call PonCursor
+					SacaMens Mensaje4
+ 0131  B4 09                 1	 	mov ah,9 
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Page     1-6
+
+
+ 0133  8B 16 00DB R          1	 	mov dx,Mensaje4 
+P4M.asm(179): warning A4031: Operand types must match
+ 0137  CD 21                 1		int 21h 
+ 0139  A0 017B R			mov al,NumInt
+ 013C  FE C0				inc al
+ 013E  3C 03				cmp al,3
+ 0140  73 06				jae bloquea
+ 0142  A2 017B R			mov NumInt,al
+ 0145  E9 0018 R			jmp otrave
+				
+ 0148				bloquea:
+ 0148  C7 06 017C R 0010		mov Fila, 16
+ 014E  C7 06 017E R 0004		mov Columna, 4
+ 0154  A1 017C R			mov ax, Fila
+ 0157  50				PUSH ax
+ 0158  A1 017E R			mov ax, Columna
+ 015B  50				PUSH ax
+ 015C  E8 0000 R			call PonCursor
+					SacaMens Mensaje5
+ 015F  B4 09                 1	 	mov ah,9 
+ 0161  8B 16 010A R          1	 	mov dx,Mensaje5 
+P4M.asm(195): warning A4031: Operand types must match
+ 0165  CD 21                 1		int 21h 
+ 0167  EB DF				jmp bloquea
+				
+ 0169  B4 4C			final: mov ah,4Ch
+ 016B  CD 21				int 21h
+				END Inicio
+
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Symbols-1
+
+
+Macros:
+
+		N a m e			Lines
+
+MODOVIDEO  . . . . . . . . . . .  	   3
+SACAMENS . . . . . . . . . . . .  	   3
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0180	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0100	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	016D	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+BLOQUEA  . . . . . . . . . . . .  	L NEAR	0148	_TEXT
+BUFUSU . . . . . . . . . . . . .  	L BYTE	0153	_DATA
+
+CLAVE  . . . . . . . . . . . . .  	L BYTE	0176	_DATA	Length = 0005
+COLUMNA  . . . . . . . . . . . .  	L WORD	017E	_DATA
+
+FILA . . . . . . . . . . . . . .  	L WORD	017C	_DATA
+FINAL  . . . . . . . . . . . . .  	L NEAR	0169	_TEXT
+
+INICIO . . . . . . . . . . . . .  	L NEAR	0013	_TEXT
+
+LAZO1  . . . . . . . . . . . . .  	L NEAR	006A	_TEXT
+LAZO2  . . . . . . . . . . . . .  	L NEAR	0093	_TEXT
+LAZO3  . . . . . . . . . . . . .  	L NEAR	00B3	_TEXT
+LAZO4  . . . . . . . . . . . . .  	L NEAR	00EC	_TEXT
+LONCLA . . . . . . . . . . . . .  	L WORD	0174	_DATA
+LONPARC  . . . . . . . . . . . .  	L BYTE	0080	_DATA	Length = 0005
+LONUSU . . . . . . . . . . . . .  	L BYTE	0154	_DATA
+LONUSUA  . . . . . . . . . . . .  	NUMBER	0080	
+
+MENSAJE1 . . . . . . . . . . . .  	L BYTE	0085	_DATA
+MENSAJE2 . . . . . . . . . . . .  	L BYTE	0099	_DATA
+MENSAJE3 . . . . . . . . . . . .  	L BYTE	00C4	_DATA
+MENSAJE4 . . . . . . . . . . . .  	L BYTE	00DB	_DATA
+MENSAJE5 . . . . . . . . . . . .  	L BYTE	010A	_DATA
+
+NOMCORR  . . . . . . . . . . . .  	L NEAR	00D9	_TEXT
+NOMINC . . . . . . . . . . . . .  	L NEAR	011A	_TEXT
+NUMINT . . . . . . . . . . . . .  	L BYTE	017B	_DATA
+
+OTRAVE . . . . . . . . . . . . .  	L NEAR	0018	_TEXT
+OTROUS . . . . . . . . . . . . .  	L NEAR	00B1	_TEXT
+
+Microsoft (R) Macro Assembler Version 5.10                  12/1/14 11:29:00
+                                                             Symbols-2
+
+
+PONCURSOR  . . . . . . . . . . .  	N PROC	0000	_TEXT	Length = 0013
+
+SALFIN . . . . . . . . . . . . .  	L NEAR	00C4	_TEXT
+SALIR  . . . . . . . . . . . . .  	L NEAR	0080	_TEXT
+SALTAR . . . . . . . . . . . . .  	L NEAR	00BD	_TEXT
+SEGUIR . . . . . . . . . . . . .  	L NEAR	009E	_TEXT
+
+USUARI . . . . . . . . . . . . .  	L BYTE	0155	_DATA	Length = 001F
+USUARIOS . . . . . . . . . . . .  	L BYTE	0000	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  P4M		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+    200 Source  Lines
+    218 Total   Lines
+     55 Symbols
+
+  46966 + 430726 Bytes symbol space free
+
+      5 Warning Errors
+      0 Severe  Errors

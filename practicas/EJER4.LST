@@ -1,0 +1,151 @@
+Microsoft (R) Macro Assembler Version 5.10                  10/27/14 08:43:1
+                                                             Page     1-1
+
+
+				dosseg
+				.model small
+				.stack 100h
+				.data
+ 0000  54 68 69 73 20 70	Texto1 DB "This program calculates powers", 13,
+				10,'$'
+       72 6F 67 72 61 6D	
+       20 63 61 6C 63 75	
+       6C 61 74 65 73 20	
+       70 6F 77 65 72 73	
+       0D 0A 24			
+ 0021  50 6C 65 61 73 65	Texto2 DB "Please, enterBase < 255: ", 13,10,'$
+				'
+       2C 20 65 6E 74 65	
+       72 42 61 73 65 20	
+       3C 20 32 35 35 3A	
+       20 0D 0A 24		
+ 003D  50 6C 65 61 73 65	Texto3 DB "Please, introduce Exponent< 255: ", 
+				13,10,'$'
+       2C 20 69 6E 74 72	
+       6F 64 75 63 65 20	
+       45 78 70 6F 6E 65	
+       6E 74 3C 20 32 35	
+       35 3A 20 0D 0A 24	
+ 0061  00			Base DB ?
+ 0062  00			Exp DB ?
+ 0063  0000			Resul DW ?
+				.code
+ 0000				convierte proc
+ 0000  2C 30			sub al,30h
+ 0002  C3			ret
+ 0003				convierte endp
+				
+				potencia macro LaBase, Exponente
+				mov cx, Exponente
+				
+				mov ax, 1
+				jcxz cero
+				otro:
+				mul LaBase
+				loop otro
+				 cero:
+				endm
+				
+ 0003				Inicio:
+ 0003  B8 ---- R		mov ax, @data
+ 0006  8E D8			mov ds, ax
+				
+ 0008  B4 09			mov ah,9
+ 000A  8D 16 0000 R		lea dx,Texto1
+ 000E  CD 21			int 21h
+				
+ 0010  8D 16 0021 R		lea dx,Texto2
+ 0014  CD 21			int 21h
+Microsoft (R) Macro Assembler Version 5.10                  10/27/14 08:43:1
+                                                             Page     1-2
+
+
+				
+ 0016  B4 01			mov ah,1
+ 0018  CD 21			int 21h
+ 001A  E8 0000 R		call convierte
+ 001D  A2 0061 R		mov Base, al
+				
+ 0020  B4 09			mov ah,9
+ 0022  8D 16 003D R		lea dx,Texto3
+ 0026  CD 21			int 21h
+ 0028  B4 01			mov ah,1
+ 002A  CD 21			int 21h
+ 002C  E8 0000 R		call convierte
+ 002F  A2 0062 R		mov Exp, al
+				
+				potencia Base, Exp
+ 0032  8B 0E 0062 R          1	mov cx, Exp 
+ejer4.ASM(52): warning A4031: Operand types must match
+ 0036  B8 0001               1	mov ax, 1 
+ 0039  E3 06                 1	jcxz cero 
+ 003B                        1	otro: 
+ 003B  F6 26 0061 R          1	mul Base 
+ 003F  E2 FA                 1	loop otro 
+ 0041                        1	 cero: 
+ 0041  A3 0063 R		mov Resul, ax
+				
+ 0044  B4 4C			mov ah, 4Ch
+ 0046  CD 21			int 21h
+				END Inicio
+
+Microsoft (R) Macro Assembler Version 5.10                  10/27/14 08:43:1
+                                                             Symbols-1
+
+
+Macros:
+
+		N a m e			Lines
+
+POTENCIA . . . . . . . . . . . .  	   7
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0065	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0100	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	0048	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+BASE . . . . . . . . . . . . . .  	L BYTE	0061	_DATA
+
+CERO . . . . . . . . . . . . . .  	L NEAR	0041	_TEXT
+CONVIERTE  . . . . . . . . . . .  	N PROC	0000	_TEXT	Length = 0003
+
+EXP  . . . . . . . . . . . . . .  	L BYTE	0062	_DATA
+
+INICIO . . . . . . . . . . . . .  	L NEAR	0003	_TEXT
+
+OTRO . . . . . . . . . . . . . .  	L NEAR	003B	_TEXT
+
+RESUL  . . . . . . . . . . . . .  	L WORD	0063	_DATA
+
+TEXTO1 . . . . . . . . . . . . .  	L BYTE	0000	_DATA
+TEXTO2 . . . . . . . . . . . . .  	L BYTE	0021	_DATA
+TEXTO3 . . . . . . . . . . . . .  	L BYTE	003D	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  ejer4		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+Microsoft (R) Macro Assembler Version 5.10                  10/27/14 08:43:1
+                                                             Symbols-2
+
+
+
+     57 Source  Lines
+     64 Total   Lines
+     32 Symbols
+
+  47144 + 436693 Bytes symbol space free
+
+      1 Warning Errors
+      0 Severe  Errors
